@@ -74,6 +74,7 @@ function onPreInputKeydown(ui, props, e) {
             preventIfAtEnd = isValidEvent = true;
             break;
     }
+
     if (isValidEvent && props.preInputSelStart === props.preInputSelEnd) {
         maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd);
     }
@@ -138,7 +139,7 @@ function updateRanges(props, changeStart, changeEnd, insertionCount) {
     var indexDelta = changeStart - changeEnd + (insertionCount || 0);
     var retainedPillRanges = [];
 
-    props.modelValue.getPillRanges().each(function(pillRange) {
+    props.modelValue.getPillRanges().forEach(function(pillRange) {
         //update position for and retain pill when the change ends before it
         if (changeEnd <= pillRange.positionStart) {
             pillRange.positionStart = pillRange.positionStart + indexDelta;
@@ -209,10 +210,6 @@ function postInputCleanup(props) {
     props.preInputVal = props.modelValue.text;
 }
 
-function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
-
-}
-
 function synchronize(ui, props, newModelValue) {
     props.modelValue = newModelValue || props.modelValue || RiqTextModelValue();
     ui.textarea.value = props.modelValue.text;
@@ -237,6 +234,41 @@ function setModelValue(ui, props, newModelValue) {
 
 function updateDecorator() {
 
+}
+
+function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
+    if (props.originalKeyEvent && !props.originalKeyEvent.ctrlKey && !props.originalKeyEvent.metaKey && props.preInputSelStart === props.preInputSelEnd) {
+        var pillRangeWithCaret = props.modelValue.getPillRanges().some(function(pillRange) {
+            if (isIndexWithinRange(props.preInputSelStart, pillRange) &&
+                !(preventIfAtStart && props.preInputSelStart === pillRange.positionStart) &&
+                !(preventIfAtEnd && props.preInputSelStart === pillRange.positionEnd)) {
+                pillRangeWithCaret = pillRange;
+                return true;
+            }
+        });
+
+        if (pillRangeWithCaret) {
+            var indexOfRangeWithCaret = 0;
+            e.preventDefault();
+
+            props.modelValue.getPillRanges().forEach(function(pillRange) {
+                if (pillRange === pillRangeWithCaret) {
+                    return false;
+                }
+                indexOfRangeWithCaret++;
+            });
+
+            var pillEl = ui.decorator.querySelectorAll[indexOfRangeWithCaret];
+
+            if (pillEl) {
+                pillEl.focus();
+            }
+        }
+    }
+}
+
+function isIndexWithinRange(index, range) {
+    return index >= range.positionStart && index <= range.positionEnd;
 }
 
 function updateTimer(props) {
