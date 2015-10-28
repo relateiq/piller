@@ -1,12 +1,7 @@
-/**** tape-style ****/
-var test = require('tape');
+describe('piller', function() {
 
-test('it should have a working test environment', function(t) {
-    t.equal(true, true);
-    t.end();
+    it('should have a working test environment', function() {
+        expect(true).toBe(true);
+    });
+
 });
-
-/**** karma-style ****/
-// it('should have a working test environment', function() {
-//     expect(true).toEqual(true);
-// });

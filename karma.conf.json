@@ -1,6 +1,7 @@
 {
   "frameworks": [
-    "jasmine"
+    "jasmine",
+    "browserify"
   ],
   "basePath": "",
   "files": [
