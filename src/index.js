@@ -66,6 +66,20 @@ function registerTextareaEvents(ui, props) {
   ui.textarea.addEventListener('input', onTextareaInput.bind(null, ui, props));
 }
 
+function registerDecoratorEvents(ui, props) {
+  addDelegatedPillListener(ui, 'keydown', onPillKeydown.bind(null, ui, props));
+  addDelegatedPillListener(ui, 'focusin', onPillFocus.bind(null, ui, props));
+  addDelegatedPillListener(ui, 'focusout', onPillBlur.bind(null, ui, props));
+}
+
+function addDelegatedPillListener(ui, eventName, listener) {
+  ui.decorator.addEventListener(eventName, function(e) {
+    if (e.target.classList.contains('js-piller-pill')) {
+      listener(e);
+    }
+  });
+}
+
 function onPreInputEventSetup(ui, props, e) {
   props.preInputEvent = e;
   props.preInputVal = ui.textarea.value;
@@ -97,6 +111,14 @@ function onPreInputKeydown(ui, props, e) {
   if (isValidEvent && props.preInputSelStart === props.preInputSelEnd) {
     maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd);
   }
+}
+
+function onPillFocus(ui) {
+  ui.textarea.classList.add('focus');
+}
+
+function onPillBlur(ui) {
+  ui.textarea.classList.remove('focus');
 }
 
 function onPreInputKeypress(ui, props, e) {
@@ -152,6 +174,61 @@ function onTextareaInput(ui, props) {
 
   synchronize(ui, props);
   postInputCleanup(props);
+}
+
+function onPillKeydown(ui, props, e) {
+  e.preventDefault();
+
+  if (e.which !== 27) {
+    e.stopPropagation();
+  }
+
+  switch (e.which) {
+    case 8: // BACKSPACE
+    case 46: // DELETE
+      onRemovePill(ui, props, e);
+      break;
+    case 88: // X
+      if (e.metaKey && !e.shiftKey) {
+        onRemovePill(ui, props, e);
+      }
+      break;
+    case 68: // D
+      if (e.ctrlKey && !e.shiftKey) {
+        onRemovePill(ui, props, e);
+      }
+      break;
+    case 9: // TAB
+    case 37: // LEFT_ARROW
+    case 38: // UP_ARROW
+    case 39: // RIGHT_ARROW
+    case 40: // DOWN_ARROW
+      e.preventDefault();
+      var pillObj = getPillRangeFromEvent(e);
+      var newCaretPos = pillObj.positionStart;
+
+      if ((e.which === 9 && !e.shiftKey) || e.which === 39 || e.which === 40) {
+        newCaretPos = pillObj.positionEnd;
+      }
+
+      setCaretPosition(ui.textarea, newCaretPos);
+      break;
+  }
+}
+
+function onRemovePill(ui, props, e) {
+  var pillRange = getPillRangeFromEvent(ui, props, e);
+
+  e.preventDefault();
+  props.modelValue.removePillRange(pillRange);
+  updateRanges(props, pillRange.positionStart, pillRange.positionEnd, 0);
+  synchronize(ui, props);
+  setCaretPosition(ui.textarea, pillRange.positionStart);
+}
+
+function getPillRangeFromEvent(ui, props, e) {
+  var rangeIndex = ui.decorator.querySelectorAll('.js-piller-pill').indexOf(e.target);
+  return props.modelValue.getPillRanges()[rangeIndex];
 }
 
 function updateRanges(props, changeStart, changeEnd, insertionCount) {
@@ -363,19 +440,27 @@ function getStoredModelValue(props) {
 
   if (storedValue) {
     var instantiatedPills = [];
+
     if (storedValue.pillRanges) {
-      storedValue.pillRanges.forEach(function(ref) {
-        props.getPillCorpus(props).forEach(function(corpusRef) {
-          if (corpusRef.id === ref.id) {
-            var refInstance = RiqTextAtReference(ref.id, ref.value, ref.text.from(1), ref.searchText, ref.className, ref.positionStart);
-            instantiatedPills.push(refInstance);
+      storedValue.pillRanges.forEach(function(pill) {
+        props.getPillCorpus(props).forEach(function(corpusPill) {
+          if (corpusPill.id === pill.id) {
+            var pillInstance = RiqTextAtReference(pill.id, pill.value, pill.text.substring(1), pill.searchText, pill.className, pill.positionStart);
+            instantiatedPills.push(pillInstance);
             return false;
           }
         });
       });
     }
+
     return RiqTextModelValue(storedValue.text, instantiatedPills);
   }
 
   return null;
+}
+
+function setCaretPosition(el, caretPosition) {
+  el.focus();
+  el.selectionStart = caretPosition;
+  el.selectionEnd = caretPosition;
 }
