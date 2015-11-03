@@ -16,6 +16,7 @@ function create(container, pillCorpus, options) {
 
   defineModelValueOnInstance(pillerInstance, props);
   registerTextareaEvents(pillerInstance.UI, props);
+  registerDecoratorEvents(pillerInstance.UI, props);
 
   return pillerInstance;
 }
