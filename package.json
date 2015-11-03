@@ -22,7 +22,9 @@
     "start": "bin/iqb start",
     "preversion": "bin/iqb test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "extend": "~3.0.0"
+  },
   "devDependencies": {
     "browserify": "~12.0.0",
     "browserify-istanbul": "~0.2.1",

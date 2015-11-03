@@ -1,3 +1,5 @@
+var extend = require('extend');
+
 var cleanText = require('./util/cleanText');
 var initUI = require('./UI');
 
@@ -332,7 +334,7 @@ function updateDecorator(ui, props) {
   var cleanHtml = getCleanHtmlWithRanges(ui, props);
 
   //&nbsp; is an invisible character that gives a true height to the div when <br> is ignored for size
-  if (cleanHtml.endsWith('<br>')) {
+  if (cleanHtml.lastIndexOf('<br>') === cleanHtml.length - 4) {
     cleanHtml += '&nbsp;';
   }
 
@@ -463,4 +465,62 @@ function setCaretPosition(el, caretPosition) {
   el.focus();
   el.selectionStart = caretPosition;
   el.selectionEnd = caretPosition;
+}
+
+function selectFromSearch(ui, props, selectedPill) {
+  if (selectedPill) {
+    var query;
+
+    if (props.pillSearchMatches && props.pillSearchMatches.length) {
+      var match;
+
+      props.pillSearchMatches.some(function(corpusMatch) {
+        if (selectedPill === corpusMatch.value) {
+          match = corpusMatch;
+          return true;
+        }
+      });
+
+      query = match.query;
+    } else {
+      query = selectedPill.searchPrefix; //props.pillSearchMatches is empty on searchPrefix query
+    }
+
+    var idxs = getPillIndicesForQuery(ui, props, query);
+
+    var selectedPillClone = extend({}, selectedPill);
+
+    selectedPillClone.positionStart = idxs.start;
+    var insertedText = selectedPillClone.text + selectedPillClone.suffix;
+    var toEndOfNewVal = props.modelValue.text.substring(0, idxs.start) + insertedText;
+
+    props.modelValue.text = toEndOfNewVal + props.modelValue.text.substring(idxs.end);
+    updateRanges(idxs.start, idxs.end, insertedText.length);
+    props.modelValue.addPill(selectedPillClone);
+
+    synchronize();
+    setCaretPosition(toEndOfNewVal.length + selectedPillClone.caretPositionFromEnd);
+    postInputCleanup();
+  }
+  return props.modelValue.text;
+}
+
+function getPillIndicesForQuery(ui, props, query) {
+  var selStart = ui.textarea.selectionStart;
+  var selEnd = ui.textarea.selectionEnd;
+  var result = {
+    start: selStart,
+    end: selEnd
+  };
+
+  if (selStart === selEnd) {
+    var valAtCaret = props.modelValue.text.substring(0, selStart);
+
+    if (valAtCaret.lastIndexOf(query) === valAtCaret.length - query.length) {
+      result.start -= query.length;
+      result.end = result.start + query.length;
+    }
+  }
+
+  return result;
 }
