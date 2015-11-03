@@ -2,6 +2,7 @@ var extend = require('extend');
 
 var cleanText = require('./util/cleanText');
 var initUI = require('./UI');
+var searchForMatches = require('./search');
 
 module.exports = {
   create: create
@@ -9,14 +10,16 @@ module.exports = {
 
 function create(container, pillCorpus, options) {
   var props = initProps(pillCorpus, options);
+  var ui = initUI(container);
   var pillerInstance = {
-    UI: initUI(container),
+    ui: ui,
+    selectSearchMatch: selectSearchMatch.bind(null, ui, props),
     destroy: destroy.bind(null, props)
   };
 
   defineModelValueOnInstance(pillerInstance, props);
-  registerTextareaEvents(pillerInstance.UI, props);
-  registerDecoratorEvents(pillerInstance.UI, props);
+  registerTextareaEvents(pillerInstance.ui, props);
+  registerDecoratorEvents(pillerInstance.ui, props);
 
   return pillerInstance;
 }
@@ -44,7 +47,7 @@ function defineModelValueOnInstance(pillerInstance, props) {
     get: function() {
       return props.modelValue;
     },
-    set: setModelValue.bind(null, pillerInstance.UI, props)
+    set: setModelValue.bind(null, pillerInstance.ui, props)
   });
 }
 
@@ -177,6 +180,7 @@ function onTextareaInput(ui, props) {
 
   synchronize(ui, props);
   postInputCleanup(props);
+  doSearch(ui, props);
 }
 
 function onPillKeydown(ui, props, e) {
@@ -468,7 +472,15 @@ function setCaretPosition(el, caretPosition) {
   el.selectionEnd = caretPosition;
 }
 
-function selectFromSearch(ui, props, selectedPill) {
+function doSearch(ui, props) {
+  var matches = searchForMatches(ui, props);
+
+  if (matches && matches.length) {
+    props.options.showSearchMatches(matches);
+  }
+}
+
+function selectSearchMatch(ui, props, selectedPill) {
   if (selectedPill) {
     var query;
 
