@@ -26,7 +26,6 @@ function pillerPill(id, value, displayText, position, options) {
   Object.defineProperties(instance, {
     text: {
       enumerable: true,
-      writable: true,
       get: function() {
         return text;
       },
@@ -37,7 +36,6 @@ function pillerPill(id, value, displayText, position, options) {
     },
     className: {
       enumerable: true,
-      writable: true,
       get: function() {
         return className;
       },
@@ -48,7 +46,6 @@ function pillerPill(id, value, displayText, position, options) {
     },
     positionStart: {
       enumerable: true,
-      writable: true,
       get: function() {
         return positionStart;
       },
@@ -67,6 +64,8 @@ function pillerPill(id, value, displayText, position, options) {
   setHtml(instance);
 
   instance.clone = clone.bind(instance);
+
+  return instance;
 }
 
 function setHtml(instance) {

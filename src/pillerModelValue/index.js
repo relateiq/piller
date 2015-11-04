@@ -13,6 +13,8 @@ function pillerModelValue(text, pills) {
   instance.removePill = removePill.bind(instance);
 
   instance.setPills(pills);
+
+  return instance;
 }
 
 function getPills() {

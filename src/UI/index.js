@@ -22,7 +22,7 @@ function createDecorator(container) {
 }
 
 function createTextarea(container) {
-  var textarea = document.createElement('div');
+  var textarea = document.createElement('textarea');
   textarea.classList.add('piller-textarea');
   container.appendChild(textarea);
   return textarea;

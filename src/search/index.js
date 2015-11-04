@@ -48,7 +48,8 @@ function doPillSearch(ui, props) {
     }
   });
 
-  Object.each(searchPrefixData, function(searchPrefix, data) {
+  Object.keys(searchPrefixData).forEach(function(searchPrefix) {
+    var data = searchPrefixData[searchPrefix];
     var lastWords = getLastNWords(valAtCaret, data.maxWords, true);
     var matches = getSearchMatches(props, searchPrefix, lastWords, data.minChars, data.items);
 

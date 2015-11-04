@@ -23,6 +23,8 @@ function create(container, pillCorpus, options) {
   registerTextareaEvents(pillerInstance.ui, props);
   registerDecoratorEvents(pillerInstance.ui, props);
 
+  setModelValue(ui, props);
+
   return pillerInstance;
 }
 
@@ -46,7 +48,6 @@ function destroy(props) {
 function defineModelValueOnInstance(pillerInstance, props) {
   Object.defineProperty(pillerInstance, 'modelValue', {
     enumerable: true,
-    writable: true,
     get: function() {
       return props.modelValue;
     },
@@ -320,11 +321,11 @@ function synchronize(ui, props, newModelValue) {
   props.modelValue = newModelValue || props.modelValue || pillerModelValue();
   ui.textarea.value = props.modelValue.text;
   updateDecorator(ui, props);
-  updateStorageTimer();
+  updateStorageTimer(props);
 }
 
 function setModelValue(ui, props, newModelValue) {
-  clearTypingTimers();
+  clearTypingTimers(props);
 
   if (newModelValue) {
     synchronize(ui, props, newModelValue);
@@ -335,7 +336,7 @@ function setModelValue(ui, props, newModelValue) {
     newModelValue = getStoredModelValue(props);
   }
 
-  synchronize(newModelValue || pillerModelValue());
+  synchronize(ui, props, newModelValue || pillerModelValue());
 }
 
 function updateDecorator(ui, props) {
@@ -418,7 +419,7 @@ function updateStorageTimer(props) {
   }
 
   clearTimeout(props.typingTimeout);
-  props.typingTimeout = setTimeout(clearTypingWatch, 500);
+  props.typingTimeout = setTimeout(clearTypingWatch.bind(null, props), 500);
 }
 
 function clearTypingTimers(props) {
@@ -518,7 +519,7 @@ function selectSearchMatch(ui, props, selectedPill) {
     updateRanges(idxs.start, idxs.end, insertedText.length);
     props.modelValue.addPill(selectedPillClone);
 
-    synchronize();
+    synchronize(ui, props);
     setCaretPosition(toEndOfNewVal.length + selectedPillClone.caretPositionFromEnd);
     postInputCleanup();
   }

@@ -1,6 +1,7 @@
 .piller {
   border: 1px solid #dddddd;
   position: relative;
+  box-sizing: border-box;
 }
 
 .piller-textarea,
@@ -10,6 +11,10 @@
   padding: 10px;
   overflow: hidden;
   border-radius: inherit;
+  box-sizing: border-box;
+  font-family: initial;
+  font-size: initial;
+  font-weight: initial;
 }
 
 .piller-textarea {
@@ -31,6 +36,7 @@
 }
 
 .piller-pill {
+  box-sizing: border-box;
   user-select: none;
   border-radius: 3px;
   background: #e0f1ec;
