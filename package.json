@@ -23,7 +23,7 @@
     "preversion": "bin/iqb test"
   },
   "dependencies": {
-    "extend": "~3.0.0"
+    "unidecode": "~0.1.7"
   },
   "devDependencies": {
     "browserify": "~12.0.0",

@@ -12,9 +12,9 @@ function doPillSearch(ui, props) {
     return [];
   }
 
-  props.modelValue.getPillRanges().some(function(pillRange) {
-    if (selStart > pillRange.positionStart && selStart <= pillRange.positionEnd) {
-      pillAtCaret = pillRange;
+  props.modelValue.getPills().some(function(pill) {
+    if (selStart > pill.positionStart && selStart <= pill.positionEnd) {
+      pillAtCaret = pill;
       return true;
     }
   });
@@ -28,23 +28,23 @@ function doPillSearch(ui, props) {
   var result = [];
   props.pillSearchMatches = [];
 
-  props.getPillCorpus().forEach(function(pillRange) {
-    if (pillRange.maxSearchWords > maxSearchWordsForItems) {
-      maxSearchWordsForItems = pillRange.maxSearchWords;
+  props.getPillCorpus().forEach(function(pill) {
+    if (pill.maxSearchWords > maxSearchWordsForItems) {
+      maxSearchWordsForItems = pill.maxSearchWords;
     }
 
-    searchPrefixData[pillRange.searchPrefix] = searchPrefixData[pillRange.searchPrefix] || {};
-    searchPrefixData[pillRange.searchPrefix].items = searchPrefixData[pillRange.searchPrefix].items || [];
-    searchPrefixData[pillRange.searchPrefix].items.push(pillRange);
+    searchPrefixData[pill.searchPrefix] = searchPrefixData[pill.searchPrefix] || {};
+    searchPrefixData[pill.searchPrefix].items = searchPrefixData[pill.searchPrefix].items || [];
+    searchPrefixData[pill.searchPrefix].items.push(pill);
 
-    var minCharsForPrefix = searchPrefixData[pillRange.searchPrefix].minChars;
-    if (typeof minCharsForPrefix !== 'number' || pillRange.minSearchCharacters < minCharsForPrefix) {
-      searchPrefixData[pillRange.searchPrefix].minChars = pillRange.minSearchCharacters;
+    var minCharsForPrefix = searchPrefixData[pill.searchPrefix].minChars;
+    if (typeof minCharsForPrefix !== 'number' || pill.minSearchCharacters < minCharsForPrefix) {
+      searchPrefixData[pill.searchPrefix].minChars = pill.minSearchCharacters;
     }
 
-    var maxWordsForPrefix = searchPrefixData[pillRange.searchPrefix].maxWords;
-    if (typeof maxWordsForPrefix !== 'number' || pillRange.maxSearchWords < maxWordsForPrefix) {
-      searchPrefixData[pillRange.searchPrefix].maxWords = pillRange.maxSearchWords;
+    var maxWordsForPrefix = searchPrefixData[pill.searchPrefix].maxWords;
+    if (typeof maxWordsForPrefix !== 'number' || pill.maxSearchWords < maxWordsForPrefix) {
+      searchPrefixData[pill.searchPrefix].maxWords = pill.maxSearchWords;
     }
   });
 

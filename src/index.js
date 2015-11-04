@@ -1,11 +1,13 @@
-var extend = require('extend');
-
 var cleanText = require('./util/cleanText');
 var initUI = require('./UI');
+var pillerModelValue = require('./pillerModelValue');
+var pillerPill = require('./pillerPill');
 var searchForMatches = require('./search');
 
 module.exports = {
-  create: create
+  create: create,
+  createPill: pillerPill,
+  createModelValue: pillerModelValue
 };
 
 function create(container, pillCorpus, options) {
@@ -44,6 +46,7 @@ function destroy(props) {
 function defineModelValueOnInstance(pillerInstance, props) {
   Object.defineProperty(pillerInstance, 'modelValue', {
     enumerable: true,
+    writable: true,
     get: function() {
       return props.modelValue;
     },
@@ -160,7 +163,7 @@ function onTextareaInput(ui, props) {
   props.modelValue.text = ui.textarea.value;
 
   if (!props.preInputVal || !props.modelValue.text) {
-    props.modelValue.clearPillRanges();
+    props.modelValue.clearPills();
   } else if (props.preInputEvent && props.preInputSelStart === props.preInputSelEnd) { //don't continue for selection due to Mac difference with backspace for single word selection
     var prevType = props.preInputEvent.type.toLowerCase();
     var hasShortcutKey = props.preInputEvent.ctrlKey || props.preInputEvent.metaKey || props.preInputEvent.altKey;
@@ -211,7 +214,7 @@ function onPillKeydown(ui, props, e) {
     case 39: // RIGHT_ARROW
     case 40: // DOWN_ARROW
       e.preventDefault();
-      var pillObj = getPillRangeFromEvent(e);
+      var pillObj = getPillFromEvent(e);
       var newCaretPos = pillObj.positionStart;
 
       if ((e.which === 9 && !e.shiftKey) || e.which === 39 || e.which === 40) {
@@ -224,37 +227,37 @@ function onPillKeydown(ui, props, e) {
 }
 
 function onRemovePill(ui, props, e) {
-  var pillRange = getPillRangeFromEvent(ui, props, e);
+  var pill = getPillFromEvent(ui, props, e);
 
   e.preventDefault();
-  props.modelValue.removePillRange(pillRange);
-  updateRanges(props, pillRange.positionStart, pillRange.positionEnd, 0);
+  props.modelValue.removePill(pill);
+  updateRanges(props, pill.positionStart, pill.positionEnd, 0);
   synchronize(ui, props);
-  setCaretPosition(ui.textarea, pillRange.positionStart);
+  setCaretPosition(ui.textarea, pill.positionStart);
 }
 
-function getPillRangeFromEvent(ui, props, e) {
-  var rangeIndex = ui.decorator.querySelectorAll('.js-piller-pill').indexOf(e.target);
-  return props.modelValue.getPillRanges()[rangeIndex];
+function getPillFromEvent(ui, props, e) {
+  var pillIndex = ui.decorator.querySelectorAll('.js-piller-pill').indexOf(e.target);
+  return props.modelValue.getPills()[pillIndex];
 }
 
 function updateRanges(props, changeStart, changeEnd, insertionCount) {
   var indexDelta = changeStart - changeEnd + (insertionCount || 0);
-  var retainedPillRanges = [];
+  var retainedPills = [];
 
-  props.modelValue.getPillRanges().forEach(function(pillRange) {
+  props.modelValue.getPills().forEach(function(pill) {
     //update position for and retain pill when the change ends before it
-    if (changeEnd <= pillRange.positionStart) {
-      pillRange.positionStart = pillRange.positionStart + indexDelta;
-      retainedPillRanges.push(pillRange);
+    if (changeEnd <= pill.positionStart) {
+      pill.positionStart = pill.positionStart + indexDelta;
+      retainedPills.push(pill);
     }
     //retain pill when the change starts after it
-    else if (changeStart >= pillRange.positionEnd) {
-      retainedPillRanges.push(pillRange);
+    else if (changeStart >= pill.positionEnd) {
+      retainedPills.push(pill);
     }
   });
 
-  props.modelValue.setPillRanges(retainedPillRanges);
+  props.modelValue.setPills(retainedPills);
 }
 
 function updateRangesForStringDiff(props) {
@@ -314,7 +317,7 @@ function postInputCleanup(props) {
 }
 
 function synchronize(ui, props, newModelValue) {
-  props.modelValue = newModelValue || props.modelValue || RiqTextModelValue();
+  props.modelValue = newModelValue || props.modelValue || pillerModelValue();
   ui.textarea.value = props.modelValue.text;
   updateDecorator(ui, props);
   updateStorageTimer();
@@ -332,11 +335,11 @@ function setModelValue(ui, props, newModelValue) {
     newModelValue = getStoredModelValue(props);
   }
 
-  synchronize(newModelValue || RiqTextModelValue());
+  synchronize(newModelValue || pillerModelValue());
 }
 
 function updateDecorator(ui, props) {
-  var cleanHtml = getCleanHtmlWithRanges(ui, props);
+  var cleanHtml = getCleanHtmlWithPills(ui, props);
 
   //&nbsp; is an invisible character that gives a true height to the div when <br> is ignored for size
   if (cleanHtml.lastIndexOf('<br>') === cleanHtml.length - 4) {
@@ -353,14 +356,14 @@ function updateDecorator(ui, props) {
   }
 }
 
-function getCleanHtmlWithRanges(ui, props) {
+function getCleanHtmlWithPills(ui, props) {
   var lastPositionEnd = 0;
   var cleanResult = '';
 
-  props.modelValue.getPillRanges().forEach(function(range) {
-    cleanResult += cleanText(props.modelValue.text.substring(lastPositionEnd, range.positionStart), true);
-    cleanResult += range.html;
-    lastPositionEnd = range.positionEnd;
+  props.modelValue.getPills().forEach(function(pill) {
+    cleanResult += cleanText(props.modelValue.text.substring(lastPositionEnd, pill.positionStart), true);
+    cleanResult += pill.html;
+    lastPositionEnd = pill.positionEnd;
   });
 
   cleanResult += cleanText(props.modelValue.text.substring(lastPositionEnd), true);
@@ -370,27 +373,27 @@ function getCleanHtmlWithRanges(ui, props) {
 
 function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
   if (props.originalKeyEvent && !props.originalKeyEvent.ctrlKey && !props.originalKeyEvent.metaKey && props.preInputSelStart === props.preInputSelEnd) {
-    var pillRangeWithCaret = props.modelValue.getPillRanges().some(function(pillRange) {
-      if (isIndexWithinRange(props.preInputSelStart, pillRange) &&
-        !(preventIfAtStart && props.preInputSelStart === pillRange.positionStart) &&
-        !(preventIfAtEnd && props.preInputSelStart === pillRange.positionEnd)) {
-        pillRangeWithCaret = pillRange;
+    var pillWithCaret = props.modelValue.getPills().some(function(pill) {
+      if (isIndexWithinPill(props.preInputSelStart, pill) &&
+        !(preventIfAtStart && props.preInputSelStart === pill.positionStart) &&
+        !(preventIfAtEnd && props.preInputSelStart === pill.positionEnd)) {
+        pillWithCaret = pill;
         return true;
       }
     });
 
-    if (pillRangeWithCaret) {
-      var indexOfRangeWithCaret = 0;
+    if (pillWithCaret) {
+      var indexOfPillWithCaret = 0;
       e.preventDefault();
 
-      props.modelValue.getPillRanges().forEach(function(pillRange) {
-        if (pillRange === pillRangeWithCaret) {
+      props.modelValue.getPills().forEach(function(pill) {
+        if (pill === pillWithCaret) {
           return false;
         }
-        indexOfRangeWithCaret++;
+        indexOfPillWithCaret++;
       });
 
-      var pillEl = ui.decorator.querySelectorAll[indexOfRangeWithCaret];
+      var pillEl = ui.decorator.querySelectorAll[indexOfPillWithCaret];
 
       if (pillEl) {
         pillEl.focus();
@@ -399,8 +402,8 @@ function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
   }
 }
 
-function isIndexWithinRange(index, range) {
-  return index >= range.positionStart && index <= range.positionEnd;
+function isIndexWithinPill(index, pill) {
+  return index >= pill.positionStart && index <= pill.positionEnd;
 }
 
 function updateStorageTimer(props) {
@@ -437,30 +440,34 @@ function maybeStoreModelValue(props, isClearLS) {
     if (isClearLS || !props.modelValue.text) {
       localStorage.removeItem(props.options.storageKey);
     } else {
-      localStorage.setItem(props.options.storageKey, props.modelValue.getStorageValue());
+      localStorage.setItem(props.options.storageKey, JSON.stringify(props.modelValue));
     }
   }
 }
 
 function getStoredModelValue(props) {
-  var storedValue = props.options.storageKey && localStorage.getItem(props.options.storageKey) || null;
+  var storedValue = null;
+  var instantiatedPills;
+
+  if (props.options.storageKey) {
+    storedValue = JSON.parse(localStorage.getItem(props.options.storageKey)) || null;
+  }
 
   if (storedValue) {
-    var instantiatedPills = [];
+    if (storedValue._pills) {
+      var corpusMap = props.getPillCorpus(props).reduce(function(map, corpusPill) {
+        map[corpusPill.id] = corpusPill;
+        return map;
+      }, {});
 
-    if (storedValue.pillRanges) {
-      storedValue.pillRanges.forEach(function(pill) {
-        props.getPillCorpus(props).forEach(function(corpusPill) {
-          if (corpusPill.id === pill.id) {
-            var pillInstance = RiqTextAtReference(pill.id, pill.value, pill.text.substring(1), pill.searchText, pill.className, pill.positionStart);
-            instantiatedPills.push(pillInstance);
-            return false;
-          }
-        });
+      instantiatedPills = storedValue._pills.map(function(pill) {
+        return corpusMap[pill.id] || (props.options.excludeStoredPillsNotFoundInCorpus ? null : pillerPill(pill));
+      }).filter(function(pill) {
+        return !!pill;
       });
     }
 
-    return RiqTextModelValue(storedValue.text, instantiatedPills);
+    return pillerModelValue(storedValue.text, instantiatedPills);
   }
 
   return null;
@@ -501,7 +508,7 @@ function selectSearchMatch(ui, props, selectedPill) {
 
     var idxs = getPillIndicesForQuery(ui, props, query);
 
-    var selectedPillClone = extend({}, selectedPill);
+    var selectedPillClone = selectedPill.clone();
 
     selectedPillClone.positionStart = idxs.start;
     var insertedText = selectedPillClone.text + selectedPillClone.suffix;
