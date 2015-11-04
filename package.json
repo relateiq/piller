@@ -23,6 +23,7 @@
     "preversion": "bin/iqb test"
   },
   "dependencies": {
+    "sassify": "~0.9.1",
     "unidecode": "~0.1.7"
   },
   "devDependencies": {
@@ -47,5 +48,13 @@
   },
   "publishConfig": {
     "registry": "https://relateiq.artifactoryonline.com/relateiq/api/npm/npm-local/"
+  },
+  "browserify": {
+    "transform": [
+      "sassify"
+    ]
+  },
+  "sassify": {
+    "auto-inject": true
   }
 }

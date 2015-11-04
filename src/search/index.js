@@ -1,5 +1,5 @@
-var getLastNWords = require('./util/getLastNWords');
-var getWords = require('./util/getWords');
+var getLastNWords = require('../util/getLastNWords');
+var getWords = require('../util/getWords');
 
 module.exports = doPillSearch;
 

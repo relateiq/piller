@@ -1,0 +1,45 @@
+.piller {
+  border: 1px solid #dddddd;
+  position: relative;
+}
+
+.piller-textarea,
+.piller-decorator {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.piller-textarea {
+  position: relative;
+  border: none;
+  z-index: 0;
+}
+
+.piller-decorator {
+  max-width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: transparent;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.piller-pill {
+  user-select: none;
+  border-radius: 3px;
+  background: #e0f1ec;
+  box-shadow: 0px 0px 0px 1px #e0f1ec;
+  white-space: pre-wrap;
+  pointer-events: all;
+  cursor: pointer;
+
+  &:focus {
+    box-shadow: 0px 0px 0px 1px #67bbaa;
+  }
+}
