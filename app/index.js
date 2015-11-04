@@ -33,7 +33,7 @@ function createPillCorpus() {
     text: 'Mr. Uníñîcõdê Man'
   }].map(function(obj) {
     return piller.createPill(obj.id, obj, obj.text, null, {
-      searchPrefix: '=',
+      searchPrefix: '@',
       minSearchCharacters: 2,
       maxSearchWords: 3
     });

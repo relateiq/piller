@@ -77,7 +77,7 @@ function getSearchMatches(props, searchPrefix, lastWords, minSearchCharacters, p
 
     for (var i = tempWords.length - 1; i >= 0; i--) {
       if (tempWords[i].indexOf(searchPrefix) === 0) {
-        lastWords = tempWords.substring(i).join(' ') + (lastWords[lastWords.length - 1] === ' ' ? ' ' : '');
+        lastWords = tempWords.slice(i).join(' ') + (lastWords[lastWords.length - 1] === ' ' ? ' ' : '');
         hasWordsStartingWithSearchPrefix = true;
         break;
       }

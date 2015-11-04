@@ -482,10 +482,7 @@ function setCaretPosition(el, caretPosition) {
 
 function doSearch(ui, props) {
   var matches = searchForMatches(ui, props);
-
-  if (matches && matches.length) {
-    props.options.showSearchMatches(matches);
-  }
+  props.options.showSearchMatches(matches);
 }
 
 function selectSearchMatch(ui, props, selectedPill) {
