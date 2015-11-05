@@ -16,7 +16,7 @@ function pillerPill(id, value, displayText, position, options) {
     searchText: options.searchText && unidecode(options.searchText) || '',
     searchPrefix: options.searchPrefix || '',
     prefix: options.prefix || '',
-    suffix: options.suffix || '',
+    suffix: options.suffix || ' ',
     caretPositionFromEnd: options.caretPositionFromEnd || 0,
     minSearchCharacters: options.minSearchCharacters || 0,
     maxSearchWords: options.maxSearchWords || 1

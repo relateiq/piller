@@ -111,6 +111,7 @@ function getMatch(compareWith, lastWords, searchPrefix, minSearchCharacters) {
       var hasSearchPrefix = !!searchPrefix && str.indexOf(searchPrefix) === 0;
       var query = hasSearchPrefix ? str.substring(searchPrefix.length) : str;
       var compareWithLen = getWords(compareWith).length;
+      query = query.toLowerCase();
 
       for (var j = compareWithLen; j > 0; j--) {
         var compareWords = getLastNWords(compareWith, j, false);

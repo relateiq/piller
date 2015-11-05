@@ -124,10 +124,12 @@ function onPreInputKeydown(ui, props, e) {
 }
 
 function onPillFocus(ui) {
+  ui.container.classList.add('piller-focus');
   ui.textarea.classList.add('focus');
 }
 
 function onPillBlur(ui) {
+  ui.container.classList.remove('piller-focus');
   ui.textarea.classList.remove('focus');
 }
 
@@ -218,7 +220,7 @@ function onPillKeydown(ui, props, e) {
     case 39: // RIGHT_ARROW
     case 40: // DOWN_ARROW
       e.preventDefault();
-      var pillObj = getPillFromEvent(e);
+      var pillObj = getPillFromEvent(ui, props, e);
       var newCaretPos = pillObj.positionStart;
 
       if ((e.which === 9 && !e.shiftKey) || e.which === 39 || e.which === 40) {
@@ -235,13 +237,14 @@ function onRemovePill(ui, props, e) {
 
   e.preventDefault();
   props.modelValue.removePill(pill);
-  updateRanges(props, pill.positionStart, pill.positionEnd, 0);
+  props.modelValue.text = props.modelValue.text.substring(0, pill.positionStart) + props.modelValue.text.substring(pill.positionEnd);
   synchronize(ui, props);
   setCaretPosition(ui.textarea, pill.positionStart);
 }
 
 function getPillFromEvent(ui, props, e) {
-  var pillIndex = ui.decorator.querySelectorAll('.js-piller-pill').indexOf(e.target);
+  var allPills = ui.decorator.querySelectorAll('.js-piller-pill');
+  var pillIndex = Array.prototype.slice.call(allPills).indexOf(e.target);
   return props.modelValue.getPills()[pillIndex];
 }
 
@@ -377,7 +380,9 @@ function getCleanHtmlWithPills(ui, props) {
 
 function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
   if (props.originalKeyEvent && !props.originalKeyEvent.ctrlKey && !props.originalKeyEvent.metaKey && props.preInputSelStart === props.preInputSelEnd) {
-    var pillWithCaret = props.modelValue.getPills().some(function(pill) {
+    var pillWithCaret;
+
+    props.modelValue.getPills().some(function(pill) {
       if (isIndexWithinPill(props.preInputSelStart, pill) &&
         !(preventIfAtStart && props.preInputSelStart === pill.positionStart) &&
         !(preventIfAtEnd && props.preInputSelStart === pill.positionEnd)) {
@@ -397,7 +402,7 @@ function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
         indexOfPillWithCaret++;
       });
 
-      var pillEl = ui.decorator.querySelectorAll[indexOfPillWithCaret];
+      var pillEl = ui.decorator.querySelectorAll('.js-piller-pill')[indexOfPillWithCaret];
 
       if (pillEl) {
         pillEl.focus();

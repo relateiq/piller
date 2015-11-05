@@ -27,7 +27,7 @@ function createPillCorpus() {
     text: 'Jane Doe'
   }, {
     id: '5',
-    text: 'Mr. Uníñîcõdê Man'
+    text: 'Mr. Uñîcõdê Man'
   }].map(function(obj) {
     return piller.createPill(obj.id, obj, obj.text, null, {
       searchPrefix: '@',
@@ -108,6 +108,10 @@ function onSearchDisplayKeydown(e) {
       handled = true;
       break;
     case 9: // TAB
+      if (!e.shiftKey) {
+        selectSearchMatch();
+        handled = true;
+      }
     case 13: // ENTER
       selectSearchMatch();
       handled = true;
@@ -120,7 +124,19 @@ function onSearchDisplayKeydown(e) {
 }
 
 function selectSearchMatch() {
-  var pillId = matchesEl.children[getActiveIndex()].getAttribute('data-pill-id');
+  var activeIndex = getActiveIndex();
+
+  if (activeIndex < 0) {
+    return;
+  }
+
+  var activeMatch = matchesEl.children[activeIndex];
+
+  if (!activeMatch) {
+    return;
+  }
+
+  var pillId = matchesEl.children[activeIndex].getAttribute('data-pill-id');
   var selectedPill;
 
   pillCorpus.some(function(pill) {
