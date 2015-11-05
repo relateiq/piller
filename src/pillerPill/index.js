@@ -75,9 +75,9 @@ function setHtml(instance) {
 function clone() {
   var displayText;
 
-  if (this.displayText) {
+  if (this.text) {
     var i = this.prefix && this.prefix.length || 0;
-    displayText = this.displayText.substring(i);
+    displayText = this.text.substring(i);
   }
 
   return pillerPill(

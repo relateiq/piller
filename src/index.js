@@ -12,7 +12,7 @@ module.exports = {
 
 function create(container, pillCorpus, options) {
   var props = initProps(pillCorpus, options);
-  var ui = initUI(container);
+  var ui = initUI(container, options);
   var pillerInstance = {
     ui: ui,
     selectSearchMatch: selectSearchMatch.bind(null, ui, props),
@@ -154,10 +154,13 @@ function onTextareaFocus(ui, props, e) {
     storePreInputSelection(ui, props);
     maybeFocusPill(ui, props, e, true, true);
   });
+
+  ui.container.classList.add('piller-focus');
 }
 
 function onTextareaBlur(ui, props) {
   clearTimeout(props.focusTimeout);
+  ui.container.classList.remove('piller-focus');
 }
 
 function onTextareaInput(ui, props) {
@@ -513,12 +516,12 @@ function selectSearchMatch(ui, props, selectedPill) {
     var toEndOfNewVal = props.modelValue.text.substring(0, idxs.start) + insertedText;
 
     props.modelValue.text = toEndOfNewVal + props.modelValue.text.substring(idxs.end);
-    updateRanges(idxs.start, idxs.end, insertedText.length);
+    updateRanges(props, idxs.start, idxs.end, insertedText.length);
     props.modelValue.addPill(selectedPillClone);
 
     synchronize(ui, props);
-    setCaretPosition(toEndOfNewVal.length + selectedPillClone.caretPositionFromEnd);
-    postInputCleanup();
+    setCaretPosition(ui.textarea, toEndOfNewVal.length + selectedPillClone.caretPositionFromEnd);
+    postInputCleanup(props);
   }
   return props.modelValue.text;
 }
