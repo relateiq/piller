@@ -12,6 +12,9 @@ var options = {
 
 var pillerInstance = piller.create(container, pillCorpus, options);
 
+window.pillerInstance = pillerInstance;
+window.pillCorpus = pillCorpus;
+
 function createPillCorpus() {
   var peoplePills = [{
     id: '1',
@@ -148,6 +151,7 @@ function selectSearchMatch() {
 
   pillerInstance.selectSearchMatch(selectedPill);
   matchesEl.innerHTML = '';
+  removeSearchDisplayListeners();
 }
 
 function getActiveIndex() {
