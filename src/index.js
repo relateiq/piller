@@ -470,7 +470,19 @@ function getStoredModelValue(props) {
       }, {});
 
       instantiatedPills = storedValue._pills.map(function(pill) {
-        return corpusMap[pill.id] || (props.options.excludeStoredPillsNotFoundInCorpus ? null : pillerPill(pill));
+        var corpusPill = corpusMap[pill.id];
+        var resultPill;
+
+        if (corpusPill) {
+          resultPill = pillerPill(corpusPill);
+          resultPill.positionStart = pill.positionStart;
+        } else if (props.options.excludeStoredPillsNotFoundInCorpus) {
+          return null;
+        } else {
+          resultPill = pillerPill(pill);
+        }
+
+        return resultPill;
       }).filter(function(pill) {
         return !!pill;
       });
