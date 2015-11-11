@@ -26,7 +26,7 @@ function doPillSearch(ui, props) {
   var maxSearchWordsForItems = 0;
   var searchPrefixData = {};
   var result = [];
-  props.pillSearchMatches = [];
+  props.pillSearchMatches.length = 0;
 
   props.getPillCorpus().forEach(function(pill) {
     if (pill.maxSearchWords > maxSearchWordsForItems) {

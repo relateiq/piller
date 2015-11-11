@@ -6,18 +6,21 @@ var searchForMatches = require('./search');
 
 module.exports = {
   create: create,
-  createPill: pillerPill,
-  createModelValue: pillerModelValue
+  createPill: pillerPill
 };
 
 function create(container, pillCorpus, options) {
   var props = initProps(pillCorpus, options);
-  var ui = initUI(container, options);
+  var ui = initUI(container, props);
   var pillerInstance = {
     ui: ui,
     selectSearchMatch: selectSearchMatch.bind(null, ui, props),
-    destroy: destroy.bind(null, props)
+    destroy: destroy.bind(null, props),
+    _pillSearchMatches: props.pillSearchMatches
   };
+
+  pillerInstance.update = synchronize.bind(null, ui, props);
+  pillerInstance.createModelValue = pillerModelValue.bind(null, pillerInstance.update);
 
   defineModelValueOnInstance(pillerInstance, props);
   registerTextareaEvents(pillerInstance.ui, props);
@@ -30,7 +33,8 @@ function create(container, pillCorpus, options) {
 
 function initProps(pillCorpus, options) {
   var props = {
-    options: options,
+    options: options || {},
+    pillSearchMatches: [],
     getPillCorpus: function() {
       return typeof pillCorpus === 'function' && pillCorpus() || pillCorpus || [];
     }
@@ -175,11 +179,11 @@ function onTextareaInput(ui, props) {
     var hasShortcutKey = props.preInputEvent.ctrlKey || props.preInputEvent.metaKey || props.preInputEvent.altKey;
 
     if (props.preInputEvent.which === 8 && !hasShortcutKey) { // BACKSPACE
-      updateRanges(props, props.preInputSelStart - 1, props.preInputSelEnd);
-    } else if (props.preInputEvent === 46 && !hasShortcutKey) { // DELETE
-      updateRanges(props, props.preInputSelStart, props.preInputSelEnd + 1);
+      props.modelValue._updateRanges(props.preInputSelStart - 1, props.preInputSelEnd);
+    } else if (props.preInputEvent.which === 46 && !hasShortcutKey) { // DELETE
+      props.modelValue._updateRanges(props.preInputSelStart, props.preInputSelEnd + 1);
     } else if (prevType === 'keypress' && !hasShortcutKey) {
-      updateRanges(props, props.preInputSelStart, props.preInputSelEnd, 1);
+      props.modelValue._updateRanges(props.preInputSelStart, props.preInputSelEnd, 1);
     } else {
       updateRangesForStringDiff(props);
     }
@@ -237,8 +241,6 @@ function onRemovePill(ui, props, e) {
 
   e.preventDefault();
   props.modelValue.removePill(pill);
-  props.modelValue.text = props.modelValue.text.substring(0, pill.positionStart) + props.modelValue.text.substring(pill.positionEnd);
-  synchronize(ui, props);
   setCaretPosition(ui.textarea, pill.positionStart);
 }
 
@@ -246,25 +248,6 @@ function getPillFromEvent(ui, props, e) {
   var allPills = ui.decorator.querySelectorAll('.js-piller-pill');
   var pillIndex = Array.prototype.slice.call(allPills).indexOf(e.target);
   return props.modelValue.getPills()[pillIndex];
-}
-
-function updateRanges(props, changeStart, changeEnd, insertionCount) {
-  var indexDelta = changeStart - changeEnd + (insertionCount || 0);
-  var retainedPills = [];
-
-  props.modelValue.getPills().forEach(function(pill) {
-    //update position for and retain pill when the change ends before it
-    if (changeEnd <= pill.positionStart) {
-      pill.positionStart = pill.positionStart + indexDelta;
-      retainedPills.push(pill);
-    }
-    //retain pill when the change starts after it
-    else if (changeStart >= pill.positionEnd) {
-      retainedPills.push(pill);
-    }
-  });
-
-  props.modelValue.setPills(retainedPills);
 }
 
 function updateRangesForStringDiff(props) {
@@ -279,7 +262,7 @@ function updateRangesForStringDiff(props) {
 
   var insertionCount = endDiff + props.modelValue.text.length - props.preInputVal.length - startDiff;
 
-  updateRanges(props, startDiff, endDiff, insertionCount > 0 ? insertionCount : 0);
+  props.modelValue._updateRanges(startDiff, endDiff, insertionCount > 0 ? insertionCount : 0);
 }
 
 function getDifferenceStartIdx(props) {
@@ -324,7 +307,7 @@ function postInputCleanup(props) {
 }
 
 function synchronize(ui, props, newModelValue) {
-  props.modelValue = newModelValue || props.modelValue || pillerModelValue();
+  props.modelValue = newModelValue || props.modelValue || pillerModelValue(synchronize.bind(null, ui, props));
   ui.textarea.value = props.modelValue.text;
   updateDecorator(ui, props);
   updateStorageTimer(props);
@@ -339,10 +322,10 @@ function setModelValue(ui, props, newModelValue) {
   } else if (props.modelValue) {
     clearStorageState(props);
   } else {
-    newModelValue = getStoredModelValue(props);
+    newModelValue = getStoredModelValue(ui, props);
   }
 
-  synchronize(ui, props, newModelValue || pillerModelValue());
+  synchronize(ui, props, newModelValue || pillerModelValue(synchronize.bind(null, ui, props)));
 }
 
 function updateDecorator(ui, props) {
@@ -395,9 +378,9 @@ function maybeFocusPill(ui, props, e, preventIfAtStart, preventIfAtEnd) {
       var indexOfPillWithCaret = 0;
       e.preventDefault();
 
-      props.modelValue.getPills().forEach(function(pill) {
+      props.modelValue.getPills().some(function(pill) {
         if (pill === pillWithCaret) {
-          return false;
+          return true;
         }
         indexOfPillWithCaret++;
       });
@@ -454,7 +437,7 @@ function maybeStoreModelValue(props, isClearLS) {
   }
 }
 
-function getStoredModelValue(props) {
+function getStoredModelValue(ui, props) {
   var storedValue = null;
   var instantiatedPills;
 
@@ -488,7 +471,7 @@ function getStoredModelValue(props) {
       });
     }
 
-    return pillerModelValue(storedValue.text, instantiatedPills);
+    return pillerModelValue(synchronize.bind(null, ui, props), storedValue.text, instantiatedPills);
   }
 
   return null;
@@ -529,15 +512,9 @@ function selectSearchMatch(ui, props, selectedPill) {
     var selectedPillClone = selectedPill.clone();
 
     selectedPillClone.positionStart = idxs.start;
-    var insertedText = selectedPillClone.text + selectedPillClone.suffix;
-    var toEndOfNewVal = props.modelValue.text.substring(0, idxs.start) + insertedText;
 
-    props.modelValue.text = toEndOfNewVal + props.modelValue.text.substring(idxs.end);
-    updateRanges(props, idxs.start, idxs.end, insertedText.length);
-    props.modelValue.addPill(selectedPillClone);
-
-    synchronize(ui, props);
-    setCaretPosition(ui.textarea, toEndOfNewVal.length + selectedPillClone.caretPositionFromEnd);
+    var careptPosAfterPill = props.modelValue.addPill(selectedPillClone, idxs.end);
+    setCaretPosition(ui.textarea, careptPosAfterPill);
     postInputCleanup(props);
   }
   return props.modelValue.text;

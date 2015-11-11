@@ -15,7 +15,7 @@
     "progress"
   ],
   "browsers": [
-    "PhantomJS"
+    "Chrome"
   ],
   "junitReporter": {
     "outputFile": "test_out/unit.xml",

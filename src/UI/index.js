@@ -2,7 +2,7 @@ require('../scss/piller.scss');
 
 module.exports = initUI;
 
-function initUI(container, options) {
+function initUI(container, props) {
   var result = {
     container: container,
     decorator: createDecorator(container),
@@ -11,7 +11,7 @@ function initUI(container, options) {
 
   container.classList.add('piller');
 
-  if (options.scrollable) {
+  if (props.options.scrollable) {
     container.classList.add('piller-scrollable');
   }
 
