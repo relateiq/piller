@@ -312,6 +312,10 @@ function synchronize(ui, props, newModelValue) {
   ui.textarea.value = props.modelValue.text;
   updateDecorator(ui, props);
   updateStorageTimer(props);
+
+  if (props.options.onModelChange) {
+    props.options.onModelChange();
+  }
 }
 
 function setModelValue(ui, props, newModelValue) {
