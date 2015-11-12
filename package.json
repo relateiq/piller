@@ -51,10 +51,9 @@
   },
   "browserify": {
     "transform": [
-      "sassify"
+      ["sassify", {
+        "auto-inject": true
+      }]
     ]
-  },
-  "sassify": {
-    "auto-inject": true
   }
 }
