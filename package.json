@@ -1,6 +1,6 @@
 {
   "name": "piller",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "a template for basic js packages",
   "main": "src/index.js",
   "author": "aliatsis@salesforce.com",
@@ -51,9 +51,12 @@
   },
   "browserify": {
     "transform": [
-      ["sassify", {
-        "auto-inject": true
-      }]
+      [
+        "sassify",
+        {
+          "auto-inject": true
+        }
+      ]
     ]
   }
 }
