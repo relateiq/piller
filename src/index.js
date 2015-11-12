@@ -19,6 +19,7 @@ function create(container, pillCorpus, options) {
     _pillSearchMatches: props.pillSearchMatches
   };
 
+  pillerInstance.reset = setModelValue.bind(null, ui, props);
   pillerInstance.update = synchronize.bind(null, ui, props);
   pillerInstance.createModelValue = pillerModelValue.bind(null, pillerInstance.update);
 
