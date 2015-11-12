@@ -314,7 +314,7 @@ function synchronize(ui, props, newModelValue) {
   updateStorageTimer(props);
 
   if (props.options.onModelChange) {
-    props.options.onModelChange();
+    props.options.onModelChange(props.modelValue);
   }
 }
 
