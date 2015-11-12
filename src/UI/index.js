@@ -2,11 +2,11 @@ require('../scss/piller.scss');
 
 module.exports = initUI;
 
-function initUI(container, props) {
+function initUI(container, props, optionalTextarea) {
   var result = {
     container: container,
     decorator: createDecorator(container),
-    textarea: createTextarea(container)
+    textarea: createTextarea(container, optionalTextarea)
   };
 
   container.classList.add('piller');
@@ -25,8 +25,8 @@ function createDecorator(container) {
   return decorator;
 }
 
-function createTextarea(container) {
-  var textarea = document.createElement('textarea');
+function createTextarea(container, optionalTextarea) {
+  var textarea = optionalTextarea || document.createElement('textarea');
   textarea.classList.add('piller-textarea');
   container.appendChild(textarea);
   return textarea;

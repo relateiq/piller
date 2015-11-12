@@ -9,9 +9,9 @@ module.exports = {
   createPill: pillerPill
 };
 
-function create(container, pillCorpus, options) {
+function create(container, pillCorpus, options, optionalTextarea) {
   var props = initProps(pillCorpus, options);
-  var ui = initUI(container, props);
+  var ui = initUI(container, props, optionalTextarea);
   var pillerInstance = {
     ui: ui,
     selectSearchMatch: selectSearchMatch.bind(null, ui, props),
