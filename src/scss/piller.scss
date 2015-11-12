@@ -3,6 +3,14 @@
   border: 1px solid #dddddd;
   position: relative;
   box-sizing: border-box;
+
+  &.piller-focus {
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+
+  .piller-textarea:focus {
+    outline: 0;
+  }
 }
 
 .piller-textarea,
@@ -58,12 +66,4 @@
 .piller-scrollable {
   overflow-y: auto;
   overflow-x: hidden;
-
-  &.piller-focus {
-    outline: -webkit-focus-ring-color auto 5px;
-  }
-
-  .piller-textarea:focus {
-    outline: 0;
-  }
 }
