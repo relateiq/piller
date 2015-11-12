@@ -46,9 +46,6 @@
     "watchify": "~3.5.0",
     "yargs": "~3.26.0"
   },
-  "publishConfig": {
-    "registry": "https://relateiq.artifactoryonline.com/relateiq/api/npm/npm-local/"
-  },
   "browserify": {
     "transform": [
       "sassify"
