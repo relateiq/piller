@@ -19,7 +19,7 @@ function create(container, pillCorpus, options, optionalTextarea) {
     _pillSearchMatches: props.pillSearchMatches
   };
 
-  pillerInstance.reset = setModelValue.bind(null, ui, props);
+  pillerInstance.reset = reset.bind(null, ui, props);
   pillerInstance.update = synchronize.bind(null, ui, props);
   pillerInstance.createModelValue = pillerModelValue.bind(null, pillerInstance.update);
 
@@ -42,6 +42,10 @@ function initProps(pillCorpus, options) {
   };
 
   return props;
+}
+
+function reset(ui, props) {
+  props.modelValue = null;
 }
 
 function destroy(props) {
