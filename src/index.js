@@ -46,6 +46,7 @@ function initProps(pillCorpus, options) {
 
 function reset(ui, props) {
   props.modelValue = null;
+  setModelValue(ui, props);
 }
 
 function destroy(props) {
