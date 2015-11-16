@@ -23,7 +23,6 @@
     "preversion": "bin/iqb test"
   },
   "dependencies": {
-    "sassify": "~0.9.1",
     "unidecode": "~0.1.7"
   },
   "devDependencies": {

@@ -1,5 +1,3 @@
-require('../scss/piller.scss');
-
 module.exports = initUI;
 
 function initUI(container, props, optionalTextarea) {
