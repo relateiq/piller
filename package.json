@@ -47,15 +47,5 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
-  },
-  "browserify": {
-    "transform": [
-      [
-        "sassify",
-        {
-          "auto-inject": true
-        }
-      ]
-    ]
   }
 }
