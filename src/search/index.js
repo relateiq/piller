@@ -26,6 +26,7 @@ function doPillSearch(ui, props) {
   var maxSearchWordsForItems = 0;
   var searchPrefixData = {};
   props.pillSearchMatches.length = 0;
+  props.pillSearchQueryMatches.length = 0;
 
   props.getPillCorpus().forEach(function(pill) {
     if (pill.maxSearchWords > maxSearchWordsForItems) {
@@ -50,23 +51,33 @@ function doPillSearch(ui, props) {
   Object.keys(searchPrefixData).forEach(function(searchPrefix) {
     var data = searchPrefixData[searchPrefix];
     var lastWords = getLastNWords(valAtCaret, data.maxWords, true);
-    var matches = getSearchMatches(props, searchPrefix, lastWords, data.minChars, data.items);
+    var matches = getSearchQueryMatches(props, searchPrefix, lastWords, data.minChars, data.items);
 
     if (matches && matches.length) {
-      props.pillSearchMatches = props.pillSearchMatches.concat(matches);
+      props.pillSearchQueryMatches = props.pillSearchQueryMatches.concat(matches);
     }
+  });
+
+
+  props.pillSearchMatches = props.pillSearchQueryMatches.map(function(queryMatch) {
+    return queryMatch.pill;
   });
 
   return props.pillSearchMatches;
 }
 
-function getSearchMatches(props, searchPrefix, lastWords, minSearchCharacters, pillsForPrefix) {
+function getSearchQueryMatches(props, searchPrefix, lastWords, minSearchCharacters, pillsForPrefix) {
   if (!lastWords) {
     return null;
   }
 
   if (searchPrefix && lastWords.lastIndexOf(searchPrefix) === (lastWords.length - searchPrefix.length)) {
-    return pillsForPrefix;
+    return pillsForPrefix.map(function(pill) {
+      return {
+        query: searchPrefix,
+        pill: pill
+      };
+    });
   }
 
   var hasWordsStartingWithSearchPrefix = false;
@@ -87,13 +98,13 @@ function getSearchMatches(props, searchPrefix, lastWords, minSearchCharacters, p
     return null;
   }
 
-  return pillsForPrefix.reduce(function(arr, item) {
-    var match = getMatch(item.searchText, lastWords, searchPrefix, minSearchCharacters);
+  return pillsForPrefix.reduce(function(arr, pill) {
+    var match = getQueryMatch(pill.searchText, lastWords, searchPrefix, minSearchCharacters);
 
     if (match) {
       arr.push({
         query: match,
-        value: item
+        pill: pill
       });
     }
 
@@ -101,7 +112,7 @@ function getSearchMatches(props, searchPrefix, lastWords, minSearchCharacters, p
   }, []);
 }
 
-function getMatch(compareWith, lastWords, searchPrefix, minSearchCharacters) {
+function getQueryMatch(compareWith, lastWords, searchPrefix, minSearchCharacters) {
   if (compareWith) {
     var wordsLen = getWords(lastWords).length;
 

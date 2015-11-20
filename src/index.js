@@ -1,3 +1,4 @@
+var debounce = require('debounce');
 var cleanText = require('./util/cleanText');
 var initUI = require('./UI');
 var pillerModelValue = require('./pillerModelValue');
@@ -38,10 +39,17 @@ function initProps(pillCorpus, options) {
   var props = {
     options: options || {},
     pillSearchMatches: [],
+    pillSearchQueryMatches: [],
     getPillCorpus: function() {
       return typeof pillCorpus === 'function' && pillCorpus() || pillCorpus || [];
     }
   };
+
+  if (props.options.searchDebounceTime) {
+    props.doSearch = debounce(doSearchDebounced, props.options.searchDebounceTime);
+  } else {
+    props.doSearch = doSearchDebounced;
+  }
 
   return props;
 }
@@ -201,7 +209,7 @@ function onTextareaInput(ui, props) {
 
   synchronize(ui, props);
   postInputCleanup(props);
-  doSearch(ui, props);
+  props.doSearch(ui, props);
 }
 
 function onPillKeydown(ui, props, e) {
@@ -495,7 +503,7 @@ function setCaretPosition(el, caretPosition) {
   el.selectionEnd = caretPosition;
 }
 
-function doSearch(ui, props) {
+function doSearchDebounced(ui, props) {
   var matches = searchForMatches(ui, props);
   props.options.showSearchMatches(matches);
 }
@@ -504,19 +512,19 @@ function selectSearchMatch(ui, props, selectedPill) {
   if (selectedPill) {
     var query;
 
-    if (props.pillSearchMatches && props.pillSearchMatches.length) {
+    if (props.pillSearchQueryMatches && props.pillSearchQueryMatches.length) {
       var match;
 
-      props.pillSearchMatches.some(function(corpusMatch) {
-        if (selectedPill === corpusMatch.value) {
-          match = corpusMatch;
+      props.pillSearchQueryMatches.some(function(queryMatch) {
+        if (selectedPill === queryMatch.pill) {
+          match = queryMatch;
           return true;
         }
       });
 
       query = match.query;
     } else {
-      query = selectedPill.searchPrefix; //props.pillSearchMatches is empty on searchPrefix query
+      query = selectedPill.searchPrefix; //props.pillSearchQueryMatches is empty on searchPrefix query
     }
 
     var idxs = getPillIndicesForQuery(ui, props, query);
