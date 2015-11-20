@@ -22,9 +22,9 @@
   overflow: hidden;
   border-radius: inherit;
   box-sizing: border-box;
-  font-family: initial;
-  font-size: initial;
-  font-weight: initial;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 .piller-textarea {
@@ -56,7 +56,7 @@
   white-space: pre-wrap;
   pointer-events: all;
   cursor: pointer;
-  color: initial;
+  color: inherit;
 
   &:focus {
     box-shadow: 0px 0px 0px 1px #67bbaa;
