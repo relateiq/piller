@@ -771,7 +771,6 @@ describe('piller', function() {
     var ref1Html = ref1.html + ' ';
     this.pillerInstance = piller.create(this.container, [], this.defaultOptions);
 
-    this.pillerInstance._pillSearchMatches = [ref1];
     insertPill.call(this, ref1);
 
     modelExpects.call(this, ref1.text + ' ', ref1Html, [ref1]);
@@ -785,7 +784,6 @@ describe('piller', function() {
     var ref1Html = ref1.html + ' ';
     this.pillerInstance = piller.create(this.container, [ref1], this.defaultOptions);
 
-    this.pillerInstance._pillSearchMatches = [ref1];
     insertPill.call(this, ref1);
     insertPill.call(this, ref1);
 

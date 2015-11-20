@@ -16,7 +16,9 @@ function create(container, pillCorpus, options, optionalTextarea) {
     ui: ui,
     selectSearchMatch: selectSearchMatch.bind(null, ui, props),
     destroy: destroy.bind(null, props),
-    _pillSearchMatches: props.pillSearchMatches
+    getPillSearchMatches: function() {
+      return props.pillSearchMatches;
+    }
   };
 
   pillerInstance.reset = reset.bind(null, ui, props);
