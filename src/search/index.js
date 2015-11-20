@@ -87,18 +87,18 @@ function getSearchMatches(props, searchPrefix, lastWords, minSearchCharacters, p
     return null;
   }
 
-  return pillsForPrefix.filter(function(item) {
+  return pillsForPrefix.reduce(function(arr, item) {
     var match = getMatch(item.searchText, lastWords, searchPrefix, minSearchCharacters);
 
     if (match) {
-      props.pillSearchMatches.push({
+      arr.push({
         query: match,
         value: item
       });
     }
 
-    return !!match;
-  });
+    return arr;
+  }, []);
 }
 
 function getMatch(compareWith, lastWords, searchPrefix, minSearchCharacters) {

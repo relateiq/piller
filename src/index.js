@@ -508,7 +508,7 @@ function selectSearchMatch(ui, props, selectedPill) {
       var match;
 
       props.pillSearchMatches.some(function(corpusMatch) {
-        if (selectedPill.value === corpusMatch.value) {
+        if (selectedPill === corpusMatch.value) {
           match = corpusMatch;
           return true;
         }
