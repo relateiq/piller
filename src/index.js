@@ -537,6 +537,10 @@ function selectSearchMatch(ui, props, selectedPill) {
     setCaretPosition(ui.textarea, careptPosAfterPill);
     postInputCleanup(props);
   }
+
+  props.pillSearchMatches.length = 0;
+  props.pillSearchQueryMatches.length = 0;
+
   return props.modelValue.text;
 }
 
