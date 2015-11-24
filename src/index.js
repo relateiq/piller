@@ -51,6 +51,10 @@ function initProps(pillCorpus, options) {
     props.doSearch = doSearchDebounced;
   }
 
+  if (!props.options.storageInterface && props.options.storageKey) {
+    props.options.storageInterface = localStorage;
+  }
+
   return props;
 }
 
@@ -419,7 +423,7 @@ function isIndexWithinPill(index, pill) {
 }
 
 function updateStorageTimer(props) {
-  if (!props.options.storageKey) {
+  if (!props.options.storageInterface) {
     return;
   }
 
@@ -448,11 +452,11 @@ function clearTypingWatch(props) {
 }
 
 function maybeStoreModelValue(props, isClearLS) {
-  if (props.options.storageKey) {
+  if (props.options.storageInterface) {
     if (isClearLS || !props.modelValue.text) {
-      localStorage.removeItem(props.options.storageKey);
+      props.options.storageInterface.removeItem(props.options.storageKey);
     } else {
-      localStorage.setItem(props.options.storageKey, JSON.stringify(props.modelValue));
+      props.options.storageInterface.setItem(props.options.storageKey, JSON.stringify(props.modelValue));
     }
   }
 }
@@ -461,8 +465,8 @@ function getStoredModelValue(ui, props) {
   var storedValue = null;
   var instantiatedPills;
 
-  if (props.options.storageKey) {
-    storedValue = JSON.parse(localStorage.getItem(props.options.storageKey)) || null;
+  if (props.options.storageInterface) {
+    storedValue = JSON.parse(props.options.storageInterface.getItem(props.options.storageKey)) || null;
   }
 
   if (storedValue) {
