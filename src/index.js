@@ -502,9 +502,9 @@ function getStoredModelValue(ui, props) {
 }
 
 function setCaretPosition(el, caretPosition) {
-  el.focus();
   el.selectionStart = caretPosition;
   el.selectionEnd = caretPosition;
+  el.focus();
 }
 
 function doSearchDebounced(ui, props) {
