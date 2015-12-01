@@ -11,6 +11,16 @@ module.exports = {
 };
 
 function create(container, pillCorpus, options, optionalTextarea) {
+  var initialModelValue;
+
+  if (!(arguments[0] instanceof Element)) {
+    initialModelValue = arguments[0];
+    container = arguments[1];
+    pillCorpus = arguments[2];
+    options = arguments[3];
+    optionalTextarea = arguments[4];
+  }
+
   var props = initProps(pillCorpus, options);
   var ui = initUI(container, props, optionalTextarea);
   var pillerInstance = {
@@ -30,7 +40,9 @@ function create(container, pillCorpus, options, optionalTextarea) {
   registerTextareaEvents(pillerInstance.ui, props);
   registerDecoratorEvents(pillerInstance.ui, props);
 
-  setModelValue(ui, props);
+  initialModelValue = getStoredModelValue(ui, props) || maybeMakePillerModelValue(pillerInstance, initialModelValue);
+
+  setModelValue(ui, props, initialModelValue);
 
   return pillerInstance;
 }
@@ -75,8 +87,22 @@ function defineModelValueOnInstance(pillerInstance, props) {
     get: function() {
       return props.modelValue;
     },
-    set: setModelValue.bind(null, pillerInstance.ui, props)
+    set: function(value) {
+      value = maybeMakePillerModelValue(pillerInstance, value);
+      setModelValue(pillerInstance.ui, props, value);
+    }
   });
+}
+
+function maybeMakePillerModelValue(pillerInstance, value) {
+  if (value && !value._isPillerModelValue) {
+    return pillerInstance.createModelValue(
+      value.text,
+      value.pills
+    );
+  } else {
+    return value;
+  }
 }
 
 function registerTextareaEvents(ui, props) {
