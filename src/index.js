@@ -226,10 +226,10 @@ function onTextareaInput(ui, props) {
 
     if (props.preInputEvent.which === 8 && !hasShortcutKey) { // BACKSPACE
       props.modelValue._updateRanges(props.preInputSelStart - 1, props.preInputSelEnd);
-    } else if (props.preInputEvent.which === 46 && !hasShortcutKey) { // DELETE
-      props.modelValue._updateRanges(props.preInputSelStart, props.preInputSelEnd + 1);
     } else if (prevType === 'keypress' && !hasShortcutKey) {
       props.modelValue._updateRanges(props.preInputSelStart, props.preInputSelEnd, 1);
+    } else if (props.preInputEvent.which === 46 && !hasShortcutKey) { // DELETE
+      props.modelValue._updateRanges(props.preInputSelStart, props.preInputSelEnd + 1);
     } else {
       updateRangesForStringDiff(props);
     }

@@ -59,7 +59,11 @@ describe('piller', function() {
     }, eventExtras);
 
     triggerKey(el, 'keydown', eventProps);
-    triggerKey(el, 'keypress', eventProps);
+
+    if (charCode) {
+      triggerKey(el, 'keypress', eventProps);
+    }
+
     triggerKey(el, 'keyup', eventProps);
 
     if (typeof input === 'string') {
@@ -572,6 +576,14 @@ describe('piller', function() {
     modelExpects.call(this, this.pillTextValue, this.pillHtmlValue, [ref]);
   });
 
+  it('should add . char before an @ref', function() {
+    this.pillerInstance = piller.create(this.container, [], this.defaultOptions);
+    var ref = insertPill.call(this);
+    setSelectionRange.call(this, 0);
+    simulateTypingOfString.call(this, '.');
+    modelExpects.call(this, '.' + this.pillTextValue, '.' + this.pillHtmlValue, [ref]);
+  });
+
   if (isMacOS) {
     it('should focus @ref on bordering backspace', function() {
       this.pillerInstance = piller.create(this.container, [], this.defaultOptions);
@@ -637,7 +649,6 @@ describe('piller', function() {
       this.pillerInstance = piller.create(this.container, [], this.defaultOptions);
       insertPill.call(this);
       setSelectionRange.call(this, 0);
-      debugger;
 
       triggerKeyEvents.call(this, this.pillerInstance.ui.textarea, 0, 39); //focus the inserted at ref
       triggerKeyEvents.call(this, document.activeElement, 0, keyCode, eventExtras);
