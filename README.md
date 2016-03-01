@@ -1,88 +1,36 @@
-# bedrock
+#piller
 
-Foundation for web libraries, modules, and applications.
+piller turns a normal textarea into a flexible typeahead that can search different data sets and display the selection as a pill of text within the textarea. This was inspired by the implementation of Facebook's comment box at-referencing.
 
-# bootstrapping
+##Implementation
+The way piller displays the pills is a bit of an illusion. A "decorator" element is perfectly overlaid on top of a textarea. This decorator has `pointer-events: none` set as a CSS style which allows mouse events to fall through to the textarea below. As the user types into the textarea, every key stroke is captured and recreated as HTML within the decorator such that every character is perfectly aligned between the decorator and the textarea. In order to prevent fuzzy or darker than expected font display, the decorator has the `color: transparent` style applied. When a pill is added, piller stores meta data containing the start index and end index where the pill should be positioned in respect to the plain text value. Using these indexes, piller creates an HTML element inside the decorator to display the pill style at the perfect position. Every pill element in the decorator has `pointer-events: all` to capture mouse events and focus, and `color: initial` to display the text within the pill.
 
-## iqproj method
-
-Use the `iqproj` command to create and update repositories based off bedrock.
-
-```
-$ iqproj new weblib my-project
-
---------------------------------------------------------------
-Before continuing, the target repository must exist in
-github.  If you haven't already done so, go to this URL:
-
-   https://github.com/organizations/relateiq/repositories/new
-
-And create a repository named 'my-project'
---------------------------------------------------------------
-Press ENTER when ready...
-
-~/projects ~/projects
-Initialized empty Git repository in /Users/jchrzanowski/projects/my-project/.git/
-remote: Counting objects: 224, done.
-remote: Total 224 (delta 0), reused 0 (delta 0), pack-reused 224
-Receiving objects: 100% (224/224), 34.29 KiB | 0 bytes/s, done.
-Resolving deltas: 100% (121/121), done.
-From git://github.com/relateiq/bedrock
- * [new branch]      master     -> bedrock/master
- * [new branch]      vanilla    -> bedrock/vanilla
- * [new branch]      web        -> bedrock/web
-[master 4835955] init package my-project
- 1 file changed, 6 insertions(+), 7 deletions(-)
-Counting objects: 193, done.
-Delta compression using up to 8 threads.
-Compressing objects: 100% (84/84), done.
-Writing objects: 100% (193/193), 30.90 KiB | 0 bytes/s, done.
-Total 193 (delta 106), reused 187 (delta 104)
---------------------------------------------------------------
-DONE.  Created my-project
-~/projects
-```
-
-## manual method
-
-prereq:  `brew install hub`
-
-1. `cd ~/projects`
-2. `mkdir project-name`
-3. `cd project-name`
-4. `git init`
-5. Create the github repo for the project
-  1. Create repo from command line  note: if you are not an owner this will create a repo you can't access right now, instead do step 5.ii
-    1. `git create relateiq/project-name`
-  2. manually create github repo
-    1. go to github and create the repo project-name
-    2. `git remote add -p origin relateiq/project-name`
-6. `git remote add bedrock git://github.com/relateiq/bedrock.git`
-7. `git fetch bedrock`
-8. `git merge bedrock/branch-name-eg-web-or-vanilla`
-9. `npm init`
-10. enter your package name
-11. `git commit -m "init package"`
-12. `git push -uf origin master`
-
-
-# feature management
-
-The bedrock skeleton provides an easy way to enable additional features via the `iqb` tool.
-To enable/disable features, run:
+##Install piller
 
 ```
-iqb feat enable|disable featurename
+npm install --save piller
 ```
 
-## Features
+##Usage
+```
+var piller = require('piller');
 
-### `app`: index.html, local server, sass, browserify, livereload
-This feature should be enabled when the module contains a mini-application that's used
-for feature testing, examples, or whatever.  The `browserify` feature is automatically 
-enabled as part of this feature.
+var pillerInstance = piller.create(containerElement, pillCorpus, options, optionalTextarea);
+```
 
-Uses src/styles/packagename.scss as an entry point.
+*containerElement*:
+- HTML Element to build piller within.
+- Note: this element needs to be exclusively devoted to piller (e.g. don't use document.body)
 
-### `headless`: run karma tests in a headless firefox instance
+*pillCorpus*:
+- Array of *pills* that can be searched, selected, and turned into a pill
+- See below on how to create a pill
 
+*options*: object to configure piller with the following properties
+- *scrollable*: allows the container to scroll if value is truthy
+- *excludeStoredPillsNotFoundInCorpus*: disregards pill found within a *pillerModelValue* (see below) that are not found in the pillCorpus
+- *searchDebounceTime*: time in milliseconds to debounce searching behavior on every text input
+- *storageKey*:
+- *storageInterface*: defaults to *localStorage*. Supplies a custom object for caching model values by *storageKey*.
+- *onModelChange*:
+- *showSearchMatches*:
