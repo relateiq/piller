@@ -46,3 +46,10 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 - destroy: cleans up any timeouts and intervals used by piller internally
 - getPillSearchMatches: returns the array of pills that match the current search at any given time
 
+###pills
+
+A pill can be created throug the `piller.createPill(...)` function as follows
+
+```
+piller.createPill(id, value, displayText, position, options);
+```
