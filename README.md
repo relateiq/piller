@@ -41,21 +41,59 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 
 `piller.create(...)` from the example above returns a `pillerInstance` object with the following interface:
 
-- ui: object with references to the elements used by piller. Properties include *container*, *decorator*, and *textarea*
-- selectSearchMatch: callback to tell piller what pill to select from with search matches provided to *showSearchMatches* (see above)
-- destroy: cleans up any timeouts and intervals used by piller internally
-- getPillSearchMatches: returns the array of pills that match the current search at any given time
+- *ui*: object with references to the elements used by piller. Properties include *container*, *decorator*, and *textarea*
+- *selectSearchMatch*: callback to tell piller what pill to select from with search matches provided to *showSearchMatches* (see above)
+- *destroy*: cleans up any timeouts and intervals used by piller internally
+- *getPillSearchMatches*: returns the array of pills that match the current search at any given time
+- *reset*: resets the model value (potentially retrieving a model value from storage)
+- *update*: updates the model value with a provided value or re-synchronizes the textarea and decorator
+- *createModelValue*: creates a *pillerModelValue* for this piller instance (see below for details
 
 ###pills
 
 A pill can be created throug the `piller.createPill(...)` function as follows
 
 ```
+var piller = require('piller');
+
 var pill = piller.createPill(id, value, displayText, position, options);
 ```
 
 *id*: unique id for this pill, determined by you
 *value*: data value to associate with this pill
 *displayText*: the text to display in the textarea when this pill is selected
-*position*: 
-options
+*position*: the starting index of this pill relative to the plain text value of the textarea
+*options*: object of options containing:
+- *searchText*: the text value used to determine if the input is a match during search
+- *searchPrefix*: a string that groups and matches pills during search (e.g. '@' will show all at-referencable pills)
+- *prefix*: string prefix to prepend to *displayText* on selection
+- *suffix*: string suffix to append to *displayText* on selection
+- *caretPositionFromEnd*: integer offset to place the caret after selection (defaults to 0). Negative values move left. Positive values move right
+- *minSearchCharacters*: minimum characters needed to do a free-text search (i.e. without the searchPrefix)
+- *maxSearchWords*: the max amount of words before the caret to search (e.g. 3 === search the last 3 words for a match)
+- *className*: custom classes to add to the pill element
+
+
+###pillerModelValue
+A piller model value can be created like so:
+
+```
+var piller = require('piller');
+
+var pillerInstance = piller.create(containerElement, pillCorpus, options, optionalTextarea);
+
+var modelValue = pillerInstance.createModelValue(text, pills);
+```
+
+where the parameters are as follows:
+
+*text*: is the plaintext value for the textarea
+*pills*: is an array of pills that pertain to the given text value
+
+The `modelValue` object that is return implements the following interface:
+*clearPills*: removes all pills from the modelValue (and updates the UI)
+*setPills*: takes an array of pills to set on the modelValue and overwrites the existing pills (and updates the UI)
+*addPill*: adds a single pill to the modelValue (and updates the UI).
+- Also, takes `optionalEndIndex` as a second parameter to tell piller to replace existing text with this pill up until that index
+*removePill*: removes a pill by reference from the modelValue (and updates the UI)
+*getPills*: returns the array of pills that exist on the modelValue at that point in time
