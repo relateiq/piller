@@ -51,5 +51,11 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 A pill can be created throug the `piller.createPill(...)` function as follows
 
 ```
-piller.createPill(id, value, displayText, position, options);
+var pill = piller.createPill(id, value, displayText, position, options);
 ```
+
+*id*: unique id for this pill, determined by you
+*value*: data value to associate with this pill
+*displayText*: the text to display in the textarea when this pill is selected
+*position*: 
+options
