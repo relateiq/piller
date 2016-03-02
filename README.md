@@ -30,7 +30,7 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 - *scrollable*: allows the container to scroll if value is truthy
 - *excludeStoredPillsNotFoundInCorpus*: disregards pill found within a *pillerModelValue* (see below) that are not found in the pillCorpus
 - *searchDebounceTime*: time in milliseconds to debounce searching behavior on every text input
-- *storageKey*:
+- *storageKey*: the string key to retrieve and store model values via the *storageService*
 - *storageInterface*: defaults to *localStorage*. Supplies a custom object for caching model values by *storageKey*.
-- *onModelChange*:
-- *showSearchMatches*:
+- *onModelChange*: callback when the model value changes. Receives the model as a parameter.
+- *showSearchMatches*: callback to display the current typeahead results however you want. Receives an array of pills that match the search as a parameter.
