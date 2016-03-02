@@ -34,3 +34,15 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 - *storageInterface*: defaults to *localStorage*. Supplies a custom object for caching model values by *storageKey*.
 - *onModelChange*: callback when the model value changes. Receives the model as a parameter.
 - *showSearchMatches*: callback to display the current typeahead results however you want. Receives an array of pills that match the search as a parameter.
+
+*optionalTextarea*: optionally passed textarea that piller will use instead of creating its own
+
+###pillerInstance
+
+`piller.create(...)` from the example above returns a `pillerInstance` object with the following interface:
+
+- ui: object with references to the elements used by piller. Properties include *container*, *decorator*, and *textarea*
+- selectSearchMatch: callback to tell piller what pill to select from with search matches provided to *showSearchMatches* (see above)
+- destroy: cleans up any timeouts and intervals used by piller internally
+- getPillSearchMatches: returns the array of pills that match the current search at any given time
+
