@@ -26,30 +26,30 @@ function pillerPill(id, value, displayText, position, options) {
   Object.defineProperties(instance, {
     text: {
       enumerable: true,
-      get: function() {
+      get: function () {
         return text;
       },
-      set: function(val) {
+      set: function (val) {
         text = val || '';
         setHtml(instance);
       }
     },
     className: {
       enumerable: true,
-      get: function() {
+      get: function () {
         return className;
       },
-      set: function(val) {
+      set: function (val) {
         className = val || '';
         setHtml(instance);
       }
     },
     positionStart: {
       enumerable: true,
-      get: function() {
+      get: function () {
         return positionStart;
       },
-      set: function(posStart) {
+      set: function (posStart) {
         if (typeof posStart === 'number') {
           positionStart = posStart;
           instance.positionEnd = posStart + instance.text.length;
