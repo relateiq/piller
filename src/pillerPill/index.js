@@ -26,30 +26,30 @@ function pillerPill(id, value, displayText, position, options) {
   Object.defineProperties(instance, {
     text: {
       enumerable: true,
-      get: function() {
+      get: function () {
         return text;
       },
-      set: function(val) {
+      set: function (val) {
         text = val || '';
         setHtml(instance);
       }
     },
     className: {
       enumerable: true,
-      get: function() {
+      get: function () {
         return className;
       },
-      set: function(val) {
+      set: function (val) {
         className = val || '';
         setHtml(instance);
       }
     },
     positionStart: {
       enumerable: true,
-      get: function() {
+      get: function () {
         return positionStart;
       },
-      set: function(posStart) {
+      set: function (posStart) {
         if (typeof posStart === 'number') {
           positionStart = posStart;
           instance.positionEnd = posStart + instance.text.length;
@@ -69,7 +69,11 @@ function pillerPill(id, value, displayText, position, options) {
 }
 
 function setHtml(instance) {
-  instance.html = '<span class="piller-pill js-piller-pill ' + instance.className + '" tabindex="-1">' + instance.text + '</span>';
+  var pillerSpan = document.createElement('span');
+  pillerSpan.tabIndex = -1;
+  pillerSpan.className = 'piller-pill js-piller-pill ' + instance.className;
+  pillerSpan.textContent = instance.text;
+  instance.html = pillerSpan.outerHTML;
 }
 
 function clone() {
