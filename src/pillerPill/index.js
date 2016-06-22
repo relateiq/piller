@@ -69,7 +69,11 @@ function pillerPill(id, value, displayText, position, options) {
 }
 
 function setHtml(instance) {
-  instance.html = '<span class="piller-pill js-piller-pill ' + instance.className + '" tabindex="-1">' + instance.text + '</span>';
+  var pillerSpan = document.createElement('span');
+  pillerSpan.tabIndex = -1;
+  pillerSpan.className = 'piller-pill js-piller-pill ' + instance.className;
+  pillerSpan.textContent = instance.text;
+  instance.html = pillerSpan.outerHTML;
 }
 
 function clone() {
