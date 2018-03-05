@@ -1,21 +1,18 @@
-[![npm][npm-badge]][npm-badge-url]
-[npm-badge]: https://img.shields.io/npm/v/piller.svg
-[npm-badge-url]: https://www.npmjs.com/package/piller
-
-# Piller
+Piller [![npm](https://img.shields.io/npm/v/piller.svg)](https://www.npmjs.com/package/piller)
+=========
 
 Piller turns a normal textarea into a flexible typeahead that can search different data sets and display the selection as a pill of text within the textarea. This was inspired by the implementation of Facebook's comment box at-referencing.
 
-##Implementation
+## Implementation
 The way piller displays the pills is a bit of an illusion. A "decorator" element is perfectly overlaid on top of a textarea. This decorator has `pointer-events: none` set as a CSS style which allows mouse events to fall through to the textarea below. As the user types into the textarea, every key stroke is captured and recreated as HTML within the decorator such that every character is perfectly aligned between the decorator and the textarea. In order to prevent fuzzy or darker than expected font display, the decorator has the `color: transparent` style applied. When a pill is added, piller stores meta data containing the start index and end index where the pill should be positioned in respect to the plain text value. Using these indexes, piller creates an HTML element inside the decorator to display the pill style at the perfect position. Every pill element in the decorator has `pointer-events: all` to capture mouse events and focus, and `color: initial` to display the text within the pill.
 
-##Install piller
+## Install piller
 
 ```
 npm install --save piller
 ```
 
-##Usage
+## Usage
 ```
 var piller = require('piller');
 
@@ -41,7 +38,7 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 
 *optionalTextarea*: optionally passed textarea that piller will use instead of creating its own
 
-###pillerInstance
+### pillerInstance
 
 `piller.create(...)` from the example above returns a `pillerInstance` object with the following interface:
 
@@ -53,7 +50,7 @@ var pillerInstance = piller.create(containerElement, pillCorpus, options, option
 - *update*: updates the model value with a provided value or re-synchronizes the textarea and decorator
 - *createModelValue*: creates a *pillerModelValue* for this piller instance (see below for details
 
-###pills
+### pills
 
 A pill can be created throug the `piller.createPill(...)` function as follows
 
@@ -78,7 +75,7 @@ var pill = piller.createPill(id, value, displayText, position, options);
 - *className*: custom classes to add to the pill element
 
 
-###pillerModelValue
+### pillerModelValue
 A piller model value can be created like so:
 
 ```
